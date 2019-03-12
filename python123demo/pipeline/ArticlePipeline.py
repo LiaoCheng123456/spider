@@ -2,7 +2,7 @@ from elasticsearch import Elasticsearch
 
 class ArticlePipelines(object):
     def __init__(self):
-        self.index = "article3"
+        self.index = "article"
         self.type = "type"
         self.es = Elasticsearch(hosts="localhost:9200")
 
