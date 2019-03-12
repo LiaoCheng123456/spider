@@ -77,7 +77,7 @@ class mingyan(scrapy.Spider):
 
             # 创建时间
             createTime = response.css("#juejin > div.view-container > main > div > div.main-area.article-area.shadow > article > div.author-info-block > div > div > time::text").extract_first()
-            createTime = int(str(createTime).replace("年", "-").replace("月", "-").replace("日",""))
+            createTime = str(createTime).replace("年", "-").replace("月", "-").replace("日","")
             article['createTime'] = createTime
 
             # 阅读量
