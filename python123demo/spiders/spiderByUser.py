@@ -127,7 +127,7 @@ class mingyan(scrapy.Spider):
 
     def insertRedis(self, url):
         if self.redis != None:
-            result = self.redis.sadd("urlList", url)
+            result = self.redis.sadd("userUrlList", url)
             if result == 1:
                 return True
             else:
