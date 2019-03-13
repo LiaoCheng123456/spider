@@ -1,11 +1,15 @@
 import random
 import scrapy
 import tomd
+
+from python123demo.redistool.connectionPool import redisConnectionPool
 from python123demo.userItem import UserItem
 
 
 class mingyan(scrapy.Spider):
     name = "runSpiderByUser"
+    redisConnection = redisConnectionPool()
+    redis = redisConnection.getClient()
     user_agent_list = [ \
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1" \
         "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", \
@@ -49,7 +53,8 @@ class mingyan(scrapy.Spider):
             if url is not None:
                 parseUrl = response.urljoin(url)
                 if "juejin.im" in str(parseUrl):
-                    yield scrapy.Request(url=parseUrl, callback=self.parse,headers=self.headers,dont_filter=True)
+                    if self.insertRedis(url) == False:
+                        yield scrapy.Request(url=parseUrl, callback=self.parse,headers=self.headers,dont_filter=False)
             nextPage.remove(url)
 
         length = str(response.url).split("/")
@@ -115,3 +120,18 @@ class mingyan(scrapy.Spider):
             return 0
         else:
             return param
+
+
+
+    # url 存入redis，如果能存那么就没有该链接，如果不能存，那么就存在该链接
+
+    def insertRedis(self, url):
+        if self.redis != None:
+            result = self.redis.sadd("urlList", url)
+            if result == 1:
+                return True
+            else:
+                return False
+        else:
+            self.redis = self.redisConnection.getClient()
+            self.insertRedis(url)

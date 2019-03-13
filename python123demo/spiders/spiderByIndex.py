@@ -3,9 +3,13 @@ import scrapy
 import tomd
 
 from python123demo.articleItem import ArticleItem
+from python123demo.redistool.connectionPool import redisConnectionPool
+
 
 class mingyan(scrapy.Spider):
     name = "runSpiderByIndex"
+    redisConnection = redisConnectionPool()
+    redis = redisConnection.getClient()
     user_agent_list = [ \
         "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/22.0.1207.1 Safari/537.1" \
         "Mozilla/5.0 (X11; CrOS i686 2268.111.0) AppleWebKit/536.11 (KHTML, like Gecko) Chrome/20.0.1132.57 Safari/536.11", \
@@ -28,7 +32,6 @@ class mingyan(scrapy.Spider):
     ]
     allowed_domains = ["juejin.im"]
     ua = random.choice(user_agent_list)
-
     headers = {
         'Accept-Encoding': 'gzip, deflate, sdch, br',
         'Accept-Language': 'zh-CN,zh;q=0.8',
@@ -50,14 +53,9 @@ class mingyan(scrapy.Spider):
                 url = response.urljoin(i)
                 # 必须是掘金的链接才进入
                 if "juejin.im" in str(url):
-
-                    # 如果是标签链接，那么就走单独的url
-                    if len(str(response.url).split("/")) == 5 and str(response.url).split("/")[-2] == "tag":
-
-                        url = "https://timeline-merger-ms.juejin.im/v1/get_tag_entry?src=web&tagId=5597a05ae4b08a686ce56f6f&page=1&pageSize=100&sort=rankIndex"
-                        pass
-                    else:
-                        yield scrapy.Request(url=url, callback=self.parse,headers=self.headers,dont_filter=True)
+                    # 存入redis
+                    if self.insertRedis(url) == False:
+                        yield scrapy.Request(url=url, callback=self.parse,headers=self.headers,dont_filter=False)
 
         if "/post/" in response.url and "#comment" not in response.url:
             article = ArticleItem()
@@ -77,7 +75,7 @@ class mingyan(scrapy.Spider):
 
             # 创建时间
             createTime = response.css("#juejin > div.view-container > main > div > div.main-area.article-area.shadow > article > div.author-info-block > div > div > time::text").extract_first()
-            createTime = int(str(createTime).replace("年", "-").replace("月", "-").replace("日",""))
+            createTime = str(createTime).replace("年", "-").replace("月", "-").replace("日","")
             article['createTime'] = createTime
 
             # 阅读量
@@ -105,3 +103,18 @@ class mingyan(scrapy.Spider):
 
     def parseToMarkdown(self, param):
         return tomd.Tomd(str(param)).markdown
+
+
+
+    # url 存入redis，如果能存那么就没有该链接，如果不能存，那么就存在该链接
+
+    def insertRedis(self, url):
+        if self.redis != None:
+            result = self.redis.sadd("urlList", url)
+            if result == 1:
+                return True
+            else:
+                return False
+        else:
+            self.redis = self.redisConnection.getClient()
+            self.insertRedis(url)
