@@ -54,8 +54,8 @@ class mingyan(scrapy.Spider):
                 # 必须是掘金的链接才进入
                 if "juejin.im" in str(url):
                     # 存入redis
-                    if self.insertRedis(url) == False:
-                        yield scrapy.Request(url=url, callback=self.parse,headers=self.headers,dont_filter=False)
+                    if self.insertRedis(url) == True:
+                        yield scrapy.Request(url=url, callback=self.parse,headers=self.headers,dont_filter=True)
 
         if "/post/" in response.url and "#comment" not in response.url:
             article = ArticleItem()

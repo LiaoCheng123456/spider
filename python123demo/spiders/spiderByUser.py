@@ -53,8 +53,8 @@ class mingyan(scrapy.Spider):
             if url is not None:
                 parseUrl = response.urljoin(url)
                 if "juejin.im" in str(parseUrl):
-                    if self.insertRedis(url) == False:
-                        yield scrapy.Request(url=parseUrl, callback=self.parse,headers=self.headers,dont_filter=False)
+                    if self.insertRedis(url) == True:
+                        yield scrapy.Request(url=parseUrl, callback=self.parse,headers=self.headers,dont_filter=True)
             nextPage.remove(url)
 
         length = str(response.url).split("/")
