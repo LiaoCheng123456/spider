@@ -49,7 +49,8 @@ class TagSpider(scrapy.Spider):
             yield scrapy.Request(url=url, callback=self.parse, headers=self.headers)
 
     def parse(self, response):
-        body = json.loads(response.body)
+        responseResult = response.body
+        body = json.loads(str(responseResult, 'utf-8'))
         if body:
             for value in body['d']['tags']:
                 # 将标签内容存入redis

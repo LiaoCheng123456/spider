@@ -56,7 +56,7 @@ class postSpider(scrapy.Spider):
     def parse(self, response):
         # 只有是这个链接下面的内容才进入循环
         if "timeline-merger-ms.juejin.im/v1/get_tag_entry" in response.url:
-            body = json.loads(response.body)
+            body = json.loads(str(response.body,'utf-8'))
             try:
                 if len(body['d']['entrylist']) > 0:
                     for value in body['d']['entrylist']:
