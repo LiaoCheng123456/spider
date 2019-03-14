@@ -1,14 +1,20 @@
 from elasticsearch import Elasticsearch
+
+from python123demo.userItem import UserItem
+
+
 class UserPipeline(object):
     def __init__(self):
         self.index = "user"
         self.type = "type"
-        self.es = Elasticsearch(hosts="192.168.136.161:9200")
+        self.es = Elasticsearch(hosts="192.168.136.167:9200")
 
     def process_item(self, item, spider):
 
-        if spider.name != "runSpiderByUser":
+        if not isinstance(item, UserItem):
             return item
+        # if spider.name != "runSpiderByUser":
+        #     return item
 
         result = self.checkDocumentExists(item)
         if result == False:
