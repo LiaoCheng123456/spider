@@ -71,6 +71,8 @@ class postSpider(scrapy.Spider):
                     #加载新的url
                     self.pages = 1
                     self.tagId = self.getSpopValue()
+                    while self.tagId == None:
+                        self.tagId = self.getSpopValue()
                     url = self.url.format(self.tagId, self.pages)
                     yield scrapy.Request(url=url, callback=self.parse, headers=self.headers, dont_filter=True)
             except:
