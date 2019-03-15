@@ -63,7 +63,6 @@ class postSpider(scrapy.Spider):
                 self.tagId = self.getSpopValue()
                 while self.tagId == None:
                     self.tagId = self.getSpopValue()
-<<<<<<< HEAD
                 url = self.url.format(self.tagId, self.pages)
                 yield scrapy.Request(url=url, callback=self.parse, headers=self.headers, dont_filter=True)
             if len(body['d']['entrylist']) > 0:
@@ -83,15 +82,6 @@ class postSpider(scrapy.Spider):
                     self.tagId = self.getSpopValue()
                 url = self.url.format(self.tagId, self.pages)
                 yield scrapy.Request(url=url, callback=self.parse, headers=self.headers, dont_filter=True)
-=======
-                    while self.tagId == None:
-                        self.tagId = self.getSpopValue()
-                    url = self.url.format(self.tagId, self.pages)
-                    yield scrapy.Request(url=url, callback=self.parse, headers=self.headers, dont_filter=True)
-            except:
-                print("异常", body,response.url)
-                yield scrapy.Request(url=response.url, callback=self.parse, headers=self.headers, dont_filter=True)
->>>>>>> origin
 
         if "https://juejin.im/post" in response.url and "#comment" not in response.url:
 
@@ -207,7 +197,6 @@ class postSpider(scrapy.Spider):
 
     def getSpopValue(self):
         if self.redis != None:
-<<<<<<< HEAD
             if self.redis.exists('tagList'):
                 pass
             result = eval(str(self.redis.spop("tagList"),encoding = "utf-8"))
@@ -215,14 +204,6 @@ class postSpider(scrapy.Spider):
                 return result['_values']['id']
             else:
                 return None
-=======
-            if self.redis.exists("tagList"):
-                result = eval(str(self.redis.spop("tagList"),encoding = "utf-8"))
-                if result['_values']['id']:
-                    return result['_values']['id']
-                else:
-                    return None
->>>>>>> origin
         else:
             self.redis = self.redisConnection.getClient()
             self.getSpopValue()
