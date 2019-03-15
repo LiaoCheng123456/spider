@@ -56,34 +56,21 @@ class postSpider(scrapy.Spider):
     def parse(self, response):
         # 只有是这个链接下面的内容才进入循环
         if "timeline-merger-ms.juejin.im/v1/get_tag_entry" in response.url:
-            body = json.loads(str(response.body,'utf-8'))
-            if body['s'] != 1:
-                #加载新的url
-                self.pages = 1
-                self.tagId = self.getSpopValue()
-                while self.tagId == None:
+            body = json.loads(response.body)
+            try:
+                if len(body['d']['entrylist']) > 0:
+                    for value in body['d']['entrylist']:
+                        if "https://juejin.im/post" in value['originalUrl']:
+                            yield scrapy.Request(url=value['originalUrl'], callback=self.parse, headers=self.headers,
+                                                 dont_filter=True)
+                    # 加载数据
+                    self.pages += 1
+                    url = self.url.format(self.tagId, self.pages)
+                    yield scrapy.Request(url=url, callback=self.parse, headers=self.headers,dont_filter=True)
+                else:
+                    #加载新的url
+                    self.pages = 1
                     self.tagId = self.getSpopValue()
-<<<<<<< HEAD
-                url = self.url.format(self.tagId, self.pages)
-                yield scrapy.Request(url=url, callback=self.parse, headers=self.headers, dont_filter=True)
-            if len(body['d']['entrylist']) > 0:
-                for value in body['d']['entrylist']:
-                    if "https://juejin.im/post" in value['originalUrl']:
-                        yield scrapy.Request(url=value['originalUrl'], callback=self.parse, headers=self.headers,
-                                             dont_filter=True)
-                # 加载数据
-                self.pages += 1
-                url = self.url.format(self.tagId, self.pages)
-                yield scrapy.Request(url=url, callback=self.parse, headers=self.headers,dont_filter=True)
-            else:
-                #加载新的url
-                self.pages = 1
-                self.tagId = self.getSpopValue()
-                while self.tagId == None:
-                    self.tagId = self.getSpopValue()
-                url = self.url.format(self.tagId, self.pages)
-                yield scrapy.Request(url=url, callback=self.parse, headers=self.headers, dont_filter=True)
-=======
                     while self.tagId == None:
                         self.tagId = self.getSpopValue()
                     url = self.url.format(self.tagId, self.pages)
@@ -91,7 +78,6 @@ class postSpider(scrapy.Spider):
             except:
                 print("异常", body,response.url)
                 yield scrapy.Request(url=response.url, callback=self.parse, headers=self.headers, dont_filter=True)
->>>>>>> origin
 
         if "https://juejin.im/post" in response.url and "#comment" not in response.url:
 
@@ -207,22 +193,12 @@ class postSpider(scrapy.Spider):
 
     def getSpopValue(self):
         if self.redis != None:
-<<<<<<< HEAD
-            if self.redis.exists('tagList'):
-                pass
-            result = eval(str(self.redis.spop("tagList"),encoding = "utf-8"))
-            if result['_values']['id']:
-                return result['_values']['id']
-            else:
-                return None
-=======
             if self.redis.exists("tagList"):
                 result = eval(str(self.redis.spop("tagList"),encoding = "utf-8"))
                 if result['_values']['id']:
                     return result['_values']['id']
                 else:
                     return None
->>>>>>> origin
         else:
             self.redis = self.redisConnection.getClient()
             self.getSpopValue()

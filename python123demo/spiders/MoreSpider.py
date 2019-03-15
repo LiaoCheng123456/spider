@@ -69,7 +69,7 @@ class moreSpider(scrapy.Spider):
             # 截取id和分页
             tagId = re.findall(r"https://timeline-merger-ms.juejin.im/v1/get_tag_entry\?src=web&tagId=(.+?)&", response.url)[0]
             pages = int(re.findall(r"&page=(.+?)&", response.url)[0])
-            body = json.loads(response.body)
+            body = json.loads(str(response.body,"utf-8"))
             if "failed" not in body['m']:
                 if len(body['d']['entrylist']) > 0:
                     for value in body['d']['entrylist']:
