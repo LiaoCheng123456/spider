@@ -6,3 +6,5 @@ class redisConnectionPool:
     def getClient(self):
         r = redis.Redis(connection_pool=self.pool)
         return r
+    def getConnection(self):
+    	return redis.Redis(host="localhost", port=6379, password=123456)
