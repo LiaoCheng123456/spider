@@ -79,6 +79,8 @@ class moreSpider(scrapy.Spider):
                     pages += 1
                     url = self.url.format(tagId, pages)
                     yield scrapy.Request(url=url, callback=self.parse, headers=self.headers,dont_filter=True)
+            else:
+                yield scrapy.Request(url=response.url, callback=self.parse, headers=self.headers, dont_filter=True)
 
         if "https://juejin.im/post" in response.url and "#comment" not in response.url:
 
@@ -192,6 +194,7 @@ class moreSpider(scrapy.Spider):
 
             yield userItem
 
+    # 获取redis队列数据
     def getSpopValue(self):
         if self.redis != None:
             if self.redis.exists("tagList"):
@@ -206,9 +209,11 @@ class moreSpider(scrapy.Spider):
             self.redis = self.redisConnection.getClient()
             self.getSpopValue()
 
+    # 将数据转换成markdown
     def parseToMarkdown(self, param):
         return tomd.Tomd(str(param)).markdown
 
+    # 将字符串转换成int
     def parseInt(self, param):
         if param == None:
             return 0
