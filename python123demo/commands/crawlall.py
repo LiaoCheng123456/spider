@@ -1,7 +1,9 @@
 from scrapy.commands import ScrapyCommand
+from scrapy.crawler import CrawlerRunner
 from scrapy.exceptions import UsageError
 from scrapy.utils.conf import arglist_to_dict
-import requests
+from scrapy.utils.project import get_project_settings
+
 
 class Command(ScrapyCommand):
     requires_project = True
@@ -30,11 +32,12 @@ class Command(ScrapyCommand):
 
     def run(self, args, opts):
         # settings = get_project_settings()
-
+        #
         # spider_loader = self.crawler_process.spider_loader
         # for spidername in args or spider_loader.list():
         #     print("*********cralall spidername************" + spidername)
         #     self.crawler_process.crawl(spidername, **opts.spargs)
-        self.crawler_process.crawl('tagSpider', **opts.spargs)
-        self.crawler_process.crawl('moreSpider', **opts.spargs)
+
+        self.crawler_process.crawl("tagSpider", **opts.spargs)
+        self.crawler_process.crawl("moreSpider", **opts.spargs)
         self.crawler_process.start()

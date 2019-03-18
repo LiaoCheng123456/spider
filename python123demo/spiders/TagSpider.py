@@ -44,6 +44,20 @@ class TagSpider(scrapy.Spider):
     }
     pages = 1
     def start_requests(self):
+        from time import sleep
+
+        import requests
+
+        ctu = True
+        while ctu:
+            try:
+                result = requests.get("elasticsearch:9200")
+                if result.status_code == 200:
+                    ctu = False
+            except:
+                print("无法连接到elasticsearch====================================================================================================================================")
+                sleep(3)
+
         urls = ['https://gold-tag-ms.juejin.im/v1/tags/type/hot/page/%s/pageSize/40'%(self.pages)]
         for url in urls:
             yield scrapy.Request(url=url, callback=self.parse, headers=self.headers)
