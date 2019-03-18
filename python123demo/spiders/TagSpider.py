@@ -51,7 +51,7 @@ class TagSpider(scrapy.Spider):
         ctu = True
         while ctu:
             try:
-                result = requests.get("elasticsearch:9200")
+                result = requests.get("http://elasticsearch:9200")
                 if result.status_code == 200:
                     ctu = False
             except:
