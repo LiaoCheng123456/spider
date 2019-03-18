@@ -7,7 +7,7 @@ class ArticlePipelines(object):
     def __init__(self):
         self.index = "article"
         self.type = "type"
-        self.es = Elasticsearch(hosts="192.168.136.167:9200")
+        self.es = Elasticsearch(hosts="elasticsearch:9200")
 
     def process_item(self, item, spider):
 
